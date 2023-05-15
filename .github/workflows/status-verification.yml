@@ -16,4 +16,5 @@ jobs:
         with:
           environment-file: requirements.prod.txt
           environment-name: orc2-status-bot
+          channels: conda-forge
       - run: pytest --binder-url https://notebooks.gesis.org/binder/ --hub-url https://notebooks.gesis.org/binder/jupyter/ test
