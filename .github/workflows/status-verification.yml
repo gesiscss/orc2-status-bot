@@ -1,3 +1,7 @@
+defaults:
+  run:
+    shell: bash -l {0}
+
 name: status-verification
 run-name: checking if GESIS Notebook if operating
 on:
