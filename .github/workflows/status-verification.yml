@@ -15,4 +15,5 @@ jobs:
         uses: mamba-org/provision-with-micromamba@main
         with:
           environment-file: requirements.prod.txt
+          environment-name: orc2-status-bot
       - run: pytest --binder-url https://notebooks.gesis.org/binder/ --hub-url https://notebooks.gesis.org/binder/jupyter/ test
