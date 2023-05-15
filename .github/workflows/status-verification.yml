@@ -1,5 +1,5 @@
 name: status-verification
-run-name: ${{ github.actor }} is checking GESIS Notebook
+run-name: checking if GESIS Notebook if operating
 on:
   schedule:
     - cron:  '0 * * * *'
