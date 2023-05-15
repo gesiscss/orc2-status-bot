@@ -1,18 +1,19 @@
-Build container with Python for test:
+Build container:
   stage: build
   rules:
     - if: ($CI_PIPELINE_SOURCE != "schedule") && $CI_COMMIT_BRANCH == 'main'
       changes:
         - Dockerfile
-        - test/env.yaml
+        - requirements.dev.txt
+        - requirements.prod.txt
   image: docker-private.gesis.intra/gesis/dc:5.7
   services:
     - name:  docker-private.gesis.intra/gesis/dind:5.5
       alias: docker
   dependencies: []
   script:
-    - docker build --no-cache --pull --target test -t docker-private-snapshots.gesis.intra/gesis/ilcm/orc2/test:latest .
-    - docker push docker-private-snapshots.gesis.intra/gesis/ilcm/orc2/test:latest
+    - docker build --no-cache --pull -t docker-private-snapshots.gesis.intra/gesis/ilcm/orc2-status-bot:latest .
+    - docker push docker-private-snapshots.gesis.intra/gesis/ilcm/orc2-status-bot:latest
 
 Test script lint:
   stage: test
@@ -21,7 +22,7 @@ Test script lint:
       changes:
         - test/**/*
   image: 
-    name: docker-private-snapshots.gesis.intra/gesis/ilcm/orc2/test:latest
+    name: docker-private-snapshots.gesis.intra/gesis/ilcm/orc2-status-bot:latest
   dependencies: []
   script:
     - black --check test
@@ -30,12 +31,12 @@ Test script lint:
 Test script run:
   stage: deploy
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule" && $GITLAB_CI_SCHEDULE_NAME == 'check-health'
+    - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
         - test/**/*
   image: 
-    name: docker-private-snapshots.gesis.intra/gesis/ilcm/orc2/test:latest
+    name: docker-private-snapshots.gesis.intra/gesis/ilcm/orc2-status-bot:latest
   dependencies: []
   script:
     - pytest --binder-url https://notebooks.gesis.org/binder/ --hub-url https://notebooks.gesis.org/binder/jupyter/ test
