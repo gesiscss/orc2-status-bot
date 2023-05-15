@@ -2,6 +2,10 @@
 
 This repository has the code to run a bot on [GitLab CI](https://docs.gitlab.com/ee/ci/) and [GitHub Actions](https://github.com/features/actions).
 
+Source: https://git.gesis.org/ilcm/orc2-status-bot
+
+Mirror: https://github.com/gesiscss/orc2-status-bot
+
 ## Bot
 
 It's a collection of tests, see [`test`](test).
