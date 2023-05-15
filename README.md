@@ -6,6 +6,23 @@ This repository has the code to run a bot on [GitLab CI](https://docs.gitlab.com
 
 It's a collection of tests, see [`test`](test).
 
+### Setup local
+
+```bash
+conda env create --file environment.yml
+```
+
+```bash
+conda activate orc2-status-bot
+```
+
+### Run local
+
+```bash
+export SECRET_GITHUB_TOKEN=REDACTED
+pytest --binder-url https://notebooks.gesis.org/binder/ --hub-url https://notebooks.gesis.org/binder/jupyter/ test
+```
+
 ## GitLab
 
 See [`.gitlab-ci.yml`](.gitlab-ci.yml).
