@@ -22,7 +22,7 @@ micromamba install \
 ## Run local
 
 ```bash
-conda activate orc2-status-bot
+micromamba activate orc2-status-bot
 ```
 
 ```bash
