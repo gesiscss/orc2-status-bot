@@ -12,22 +12,9 @@ Mirror: https://github.com/gesiscss/orc2-status-bot
 
 It's a collection of tests, see [`test`](test).
 
-### Setup local
+## Run local
 
-```bash
-conda env create --file environment.yml
-```
-
-```bash
-conda activate orc2-status-bot
-```
-
-### Run local
-
-```bash
-export SECRET_GITHUB_TOKEN=REDACTED
-pytest --binder-url https://notebooks.gesis.org/binder/ --hub-url https://notebooks.gesis.org/binder/jupyter/ test
-```
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## GitLab
 
