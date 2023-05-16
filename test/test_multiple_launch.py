@@ -41,43 +41,29 @@ def launch_binder(binder_url, repo):
 
     return notebook_url, token
 
+
 def shutdown_binder(binder_url, notebook_url, token):
     """
     Shutdown image.
     """
     headers = {"Authorization": f"token {token}"}
-    response = requests.post(notebook_url + "/api/shutdown", headers=headers, timeout=TIMEOUT)
+    response = requests.post(
+        notebook_url + "/api/shutdown", headers=headers, timeout=TIMEOUT
+    )
     assert response.status_code == 200
+
 
 def test_multiple_launch_binder(binder_url):
     """
     We can launch many image that most likely already has been built.
     """
     repositories_to_build = [
-        {
-            "slang": 'explosion/spacy-io-binder',
-            "branch": 'spacy.io'
-        },
-        {
-            "slang": 'bokeh/bokeh-notebooks',
-            "branch": 'main'
-        },
-        {
-            "slang": 'scikit-learn/scikit-learn',
-            "branch": 'main'
-        },
-        {
-            "slang": 'ChenShizhe/StatDataScience',
-            "branch": 'master'
-        },
-        {
-            "slang": 'jupyter-xeus/xeus-cling',
-            "branch": 'main'
-        },
-        {
-            "slang": 'hughshanahan/CS2900-Lab-1',
-            "branch": 'master'
-        },
+        {"slang": "explosion/spacy-io-binder", "branch": "spacy.io"},
+        {"slang": "bokeh/bokeh-notebooks", "branch": "main"},
+        {"slang": "scikit-learn/scikit-learn", "branch": "main"},
+        {"slang": "ChenShizhe/StatDataScience", "branch": "master"},
+        {"slang": "jupyter-xeus/xeus-cling", "branch": "main"},
+        {"slang": "hughshanahan/CS2900-Lab-1", "branch": "master"},
     ]
 
     built_notebook_url = []
@@ -87,6 +73,6 @@ def test_multiple_launch_binder(binder_url):
         notebook_url, notebook_token = launch_binder(binder_url, repository)
         built_notebook_url.append(notebook_url)
         built_notebook_token.append(notebook_token)
-    
+
     for i in range(len(repositories_to_build)):
         shutdown_binder(binder_url, built_notebook_url[i], built_notebook_token[i])
