@@ -39,7 +39,11 @@ pylint:
 
 Test https://notebooks.gesis.org:
   stage: deploy
+  variables:
+    BINDER_HUB_URL: https://notebooks.gesis.org/binder/
+    JUPYTER_HUB_URL: https://notebooks.gesis.org/binder/jupyter/
   rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
@@ -48,4 +52,4 @@ Test https://notebooks.gesis.org:
     name: docker-private-snapshots.gesis.intra/gesis/ilcm/orc2-status-bot:latest
   dependencies: []
   script:
-    - pytest --binder-url https://notebooks.gesis.org/binder/ --hub-url https://notebooks.gesis.org/binder/jupyter/ test
+    - pytest --binder-url $BINDER_HUB_URL --hub-url $JUPYTER_HUB_URL test
