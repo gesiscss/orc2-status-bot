@@ -105,7 +105,6 @@ def test_build_binder(binder_url):
                     break
         else:
             # This means we never got a 'Ready'!
-            sys.stdout.write(response.text)
             assert False
 
         headers = {"Authorization": f"token {token}"}
