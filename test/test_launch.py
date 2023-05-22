@@ -35,7 +35,7 @@ def test_launch_binder(binder_url):
         if request_duration.seconds > USER_TIMEOUT:
             response.close()
             break
-            
+
         line = line.decode("utf8")
         if line.startswith("data:"):
             data = json.loads(line.split(":", 1)[1])
@@ -48,7 +48,9 @@ def test_launch_binder(binder_url):
         assert False
 
     headers = {"Authorization": f"token {token}"}
-    response = requests.get(notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT)
+    response = requests.get(
+        notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT
+    )
     assert response.status_code == 200
     assert "version" in response.json()
 

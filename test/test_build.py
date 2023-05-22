@@ -108,7 +108,9 @@ def test_build_binder(binder_url):
             assert False
 
         headers = {"Authorization": f"token {token}"}
-        response = requests.get(notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT)
+        response = requests.get(
+            notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT
+        )
         assert response.status_code == 200
         assert "version" in response.json()
 
