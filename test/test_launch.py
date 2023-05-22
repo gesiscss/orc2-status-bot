@@ -4,7 +4,6 @@ Test Binder installation capability to launch repository
 
 import json
 import datetime
-import time
 
 import logging
 
