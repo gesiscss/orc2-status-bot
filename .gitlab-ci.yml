@@ -1,6 +1,8 @@
 Build container:
   stage: build
   rules:
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == 'main'
+      when: manual
     - if: ($CI_PIPELINE_SOURCE != "schedule") && $CI_COMMIT_BRANCH == 'main'
       changes:
         - Dockerfile
@@ -43,6 +45,8 @@ Test https://notebooks.gesis.org:
     BINDER_HUB_URL: https://notebooks.gesis.org/binder/
     JUPYTER_HUB_URL: https://notebooks.gesis.org/binder/jupyter/
   rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
