@@ -88,7 +88,7 @@ def test_build_binder(binder_url):
         for line in response.iter_lines():
             now = datetime.datetime.now()
             request_duration = now - begin_of_request
-            if request_duration.seconds > 300:  # 5min
+            if request_duration.seconds > 900:  # 15min
                 response.close()
                 break
 
@@ -104,6 +104,7 @@ def test_build_binder(binder_url):
                     break
         else:
             # This means we never got a 'Ready'!
+            sys.stdout.write(response.text)
             assert False
 
         headers = {"Authorization": f"token {token}"}
