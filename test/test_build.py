@@ -15,7 +15,8 @@ import pytest  # pylint: disable=unused-import
 import requests
 
 
-TIMEOUT = 30
+REQUESTS_TIMEOUT = 30  # seconds
+USER_TIMEOUT = 600  # seconds or 10min
 
 
 @contextmanager
@@ -83,12 +84,12 @@ def test_build_binder(binder_url):
 
         begin_of_request = datetime.datetime.now()
 
-        response = requests.get(build_url, stream=True, timeout=TIMEOUT)
+        response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
         response.raise_for_status()
         for line in response.iter_lines():
             now = datetime.datetime.now()
             request_duration = now - begin_of_request
-            if request_duration.seconds > 900:  # 15min
+            if request_duration.seconds > USER_TIMEOUT:  # 10min
                 response.close()
                 break
 
@@ -108,11 +109,11 @@ def test_build_binder(binder_url):
             assert False
 
         headers = {"Authorization": f"token {token}"}
-        response = requests.get(notebook_url + "/api", headers=headers, timeout=TIMEOUT)
+        response = requests.get(notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT)
         assert response.status_code == 200
         assert "version" in response.json()
 
         response = requests.post(
-            notebook_url + "/api/shutdown", headers=headers, timeout=TIMEOUT
+            notebook_url + "/api/shutdown", headers=headers, timeout=REQUESTS_TIMEOUT
         )
         assert response.status_code == 200
