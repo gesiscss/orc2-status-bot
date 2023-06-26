@@ -57,3 +57,8 @@ Test https://notebooks.gesis.org:
   dependencies: []
   script:
     - pytest --binder-url $BINDER_HUB_URL --hub-url $JUPYTER_HUB_URL test
+  artifacts:
+    paths:
+      - build.log
+    expire_in: 1 day
+    expose_as: build log
