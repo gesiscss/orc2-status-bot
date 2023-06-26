@@ -84,13 +84,11 @@ def test_build_binder(binder_url):
             build_url = binder_url + f"/build/gh/{repo}/{branch}"
 
             begin_of_request = datetime.datetime.now()
+            token = None
 
             response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
             response.raise_for_status()
             for line in response.iter_lines():
-                if "message" in line:
-                    build_log.write(line["message"])
-
                 now = datetime.datetime.now()
                 request_duration = now - begin_of_request
                 if request_duration.seconds > USER_TIMEOUT:  # 10min
@@ -102,7 +100,7 @@ def test_build_binder(binder_url):
                     data = json.loads(line.split(":", 1)[1])
                     # include message output for debugging
                     if data.get("message"):
-                        sys.stdout.write(data["message"])
+                        build_log.write(data["message"])
                     if data.get("phase") == "ready":
                         notebook_url = data["url"]
                         token = data["token"]
@@ -110,6 +108,8 @@ def test_build_binder(binder_url):
             else:
                 # This means we never got a 'Ready'!
                 assert False
+
+            assert token is not None
 
             headers = {"Authorization": f"token {token}"}
             response = requests.get(
