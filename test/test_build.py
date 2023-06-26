@@ -5,7 +5,6 @@ Test Binder installation capability to build repository
 import json
 import os
 import subprocess
-import sys
 import tempfile
 import datetime
 import time
@@ -76,45 +75,51 @@ def test_build_binder(binder_url):
             "SECRET_GITHUB_TOKEN is empty"
         )
 
-    with push_dummy_gh_branch(
-        f"https://bot:{SECRET_GITHUB_TOKEN}@github.com:/{repo}.git",
-        branch,
-    ):
-        build_url = binder_url + f"/build/gh/{repo}/{branch}"
+    with open("build.log", "w", encoding="utf-8") as build_log:
+        with push_dummy_gh_branch(
+            f"https://bot:{SECRET_GITHUB_TOKEN}@github.com:/{repo}.git",
+            branch,
+        ):
+            build_url = binder_url + f"/build/gh/{repo}/{branch}"
 
-        begin_of_request = datetime.datetime.now()
+            begin_of_request = datetime.datetime.now()
+            token = None
 
-        response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
-        response.raise_for_status()
-        for line in response.iter_lines():
-            now = datetime.datetime.now()
-            request_duration = now - begin_of_request
-            if request_duration.seconds > USER_TIMEOUT:  # 10min
-                response.close()
-                break
-
-            line = line.decode("utf8")
-            if line.startswith("data:"):
-                data = json.loads(line.split(":", 1)[1])
-                # include message output for debugging
-                if data.get("message"):
-                    sys.stdout.write(data["message"])
-                if data.get("phase") == "ready":
-                    notebook_url = data["url"]
-                    token = data["token"]
+            response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
+            response.raise_for_status()
+            for line in response.iter_lines():
+                now = datetime.datetime.now()
+                request_duration = now - begin_of_request
+                if request_duration.seconds > USER_TIMEOUT:  # 10min
+                    response.close()
                     break
-        else:
-            # This means we never got a 'Ready'!
-            assert False
 
-        headers = {"Authorization": f"token {token}"}
-        response = requests.get(
-            notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT
-        )
-        assert response.status_code == 200
-        assert "version" in response.json()
+                line = line.decode("utf8")
+                if line.startswith("data:"):
+                    data = json.loads(line.split(":", 1)[1])
+                    # include message output for debugging
+                    if data.get("message"):
+                        build_log.write(data["message"])
+                    if data.get("phase") == "ready":
+                        notebook_url = data["url"]
+                        token = data["token"]
+                        break
+            else:
+                # This means we never got a 'Ready'!
+                assert False
 
-        response = requests.post(
-            notebook_url + "/api/shutdown", headers=headers, timeout=REQUESTS_TIMEOUT
-        )
-        assert response.status_code == 200
+            assert token is not None
+
+            headers = {"Authorization": f"token {token}"}
+            response = requests.get(
+                notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT
+            )
+            assert response.status_code == 200
+            assert "version" in response.json()
+
+            response = requests.post(
+                notebook_url + "/api/shutdown",
+                headers=headers,
+                timeout=REQUESTS_TIMEOUT,
+            )
+            assert response.status_code == 200

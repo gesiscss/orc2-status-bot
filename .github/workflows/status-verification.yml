@@ -22,3 +22,9 @@ jobs:
           environment-name: orc2-status-bot
           channels: conda-forge
       - run: pytest --binder-url https://notebooks.gesis.org/binder/ --hub-url https://notebooks.gesis.org/binder/jupyter/ test
+      - name: Upload build log artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build log
+          path: build.log
+          retention-days: 1
