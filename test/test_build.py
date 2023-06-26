@@ -5,7 +5,6 @@ Test Binder installation capability to build repository
 import json
 import os
 import subprocess
-import sys
 import tempfile
 import datetime
 import time
