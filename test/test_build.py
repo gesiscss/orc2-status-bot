@@ -108,7 +108,7 @@ def test_build_binder(binder_url):
                         break
             else:
                 # This means we never got a 'Ready'!
-                print(''.join(log))
+                print("".join(log))
                 assert False
 
             assert token is not None

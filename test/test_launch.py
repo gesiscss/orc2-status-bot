@@ -42,14 +42,14 @@ def test_launch_binder(binder_url):
             data = json.loads(line.split(":", 1)[1])
 
             log.append(data.get("message"))
-            
+
             if data.get("phase") == "ready":
                 notebook_url = data["url"]
                 token = data["token"]
                 break
     else:
         # This means we never got a 'Ready'!
-        print(''.join(log))
+        print("".join(log))
         assert False
 
     headers = {"Authorization": f"token {token}"}
