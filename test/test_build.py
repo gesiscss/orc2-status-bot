@@ -82,6 +82,8 @@ def test_build_binder(binder_url):
         ):
             build_url = binder_url + f"/build/gh/{repo}/{branch}"
 
+            log = []
+
             begin_of_request = datetime.datetime.now()
             token = None
 
@@ -97,15 +99,16 @@ def test_build_binder(binder_url):
                 line = line.decode("utf8")
                 if line.startswith("data:"):
                     data = json.loads(line.split(":", 1)[1])
-                    # include message output for debugging
-                    if data.get("message"):
-                        build_log.write(data["message"])
+
+                    log.append(data.get("message"))
+
                     if data.get("phase") == "ready":
                         notebook_url = data["url"]
                         token = data["token"]
                         break
             else:
                 # This means we never got a 'Ready'!
+                print(''.join(log))
                 assert False
 
             assert token is not None
