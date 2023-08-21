@@ -75,54 +75,53 @@ def test_build_binder(binder_url):
             "SECRET_GITHUB_TOKEN is empty"
         )
 
-    with open("build.log", "w", encoding="utf-8") as build_log:
-        with push_dummy_gh_branch(
-            f"https://bot:{SECRET_GITHUB_TOKEN}@github.com:/{repo}.git",
-            branch,
-        ):
-            build_url = binder_url + f"/build/gh/{repo}/{branch}"
+    with push_dummy_gh_branch(
+        f"https://bot:{SECRET_GITHUB_TOKEN}@github.com:/{repo}.git",
+        branch,
+    ):
+        build_url = binder_url + f"/build/gh/{repo}/{branch}"
 
-            log = []
+        log = []
 
-            begin_of_request = datetime.datetime.now()
-            token = None
+        begin_of_request = datetime.datetime.now()
+        token = None
 
-            response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
-            response.raise_for_status()
-            for line in response.iter_lines():
-                now = datetime.datetime.now()
-                request_duration = now - begin_of_request
-                if request_duration.seconds > USER_TIMEOUT:  # 10min
-                    response.close()
+        response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
+        response.raise_for_status()
+        for line in response.iter_lines():
+            now = datetime.datetime.now()
+            request_duration = now - begin_of_request
+            if request_duration.seconds > USER_TIMEOUT:  # 10min
+                response.close()
+                break
+
+            line = line.decode("utf8")
+            if line.startswith("data:"):
+                data = json.loads(line.split(":", 1)[1])
+
+                log.append(data.get("message"))
+
+                if data.get("phase") == "ready":
+                    notebook_url = data["url"]
+                    token = data["token"]
                     break
+        else:
+            # This means we never got a 'Ready'!
+            print("".join(log))
+            assert False
 
-                line = line.decode("utf8")
-                if line.startswith("data:"):
-                    data = json.loads(line.split(":", 1)[1])
+        assert token is not None
 
-                    log.append(data.get("message"))
+        headers = {"Authorization": f"token {token}"}
+        response = requests.get(
+            notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT
+        )
+        assert response.status_code == 200
+        assert "version" in response.json()
 
-                    if data.get("phase") == "ready":
-                        notebook_url = data["url"]
-                        token = data["token"]
-                        break
-            else:
-                # This means we never got a 'Ready'!
-                print("".join(log))
-                assert False
-
-            assert token is not None
-
-            headers = {"Authorization": f"token {token}"}
-            response = requests.get(
-                notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT
-            )
-            assert response.status_code == 200
-            assert "version" in response.json()
-
-            response = requests.post(
-                notebook_url + "/api/shutdown",
-                headers=headers,
-                timeout=REQUESTS_TIMEOUT,
-            )
-            assert response.status_code == 200
+        response = requests.post(
+            notebook_url + "/api/shutdown",
+            headers=headers,
+            timeout=REQUESTS_TIMEOUT,
+        )
+        assert response.status_code == 200
