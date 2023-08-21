@@ -24,6 +24,8 @@ def test_launch_binder(binder_url):
     ref = "50533eb470ee6c24e872043d30b2fee463d6943f"
     build_url = f"{binder_url}/build/gh/{repo}/{ref}"
 
+    log = []
+
     begin_of_request = datetime.datetime.now()
 
     response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
@@ -38,12 +40,16 @@ def test_launch_binder(binder_url):
         line = line.decode("utf8")
         if line.startswith("data:"):
             data = json.loads(line.split(":", 1)[1])
+
+            log.append(data.get("message"))
+
             if data.get("phase") == "ready":
                 notebook_url = data["url"]
                 token = data["token"]
                 break
     else:
         # This means we never got a 'Ready'!
+        print("".join(log))
         assert False
 
     headers = {"Authorization": f"token {token}"}
