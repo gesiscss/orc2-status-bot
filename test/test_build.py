@@ -99,7 +99,9 @@ def test_build_binder(binder_url):
             if line.startswith("data:"):
                 data = json.loads(line.split(":", 1)[1])
 
-                logging.info("| %s | %s", data.get('phase'), data.get('message').strip())
+                logging.info(
+                    "| %s | %s", data.get("phase"), data.get("message").strip()
+                )
 
                 if data.get("phase") == "ready":
                     notebook_url = data["url"]
