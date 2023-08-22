@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import datetime
 import time
+import logging
 from contextlib import contextmanager
 
 import pytest  # pylint: disable=unused-import
@@ -16,6 +17,9 @@ import requests
 
 REQUESTS_TIMEOUT = 30  # seconds
 USER_TIMEOUT = 600  # seconds or 10min
+
+
+logging.basicConfig(encoding="utf-8", level=logging.INFO)
 
 
 @contextmanager
@@ -35,9 +39,7 @@ def push_dummy_gh_branch(repo, branch):
             ["git", "config", "user.email", "bot@notebooks.gesis.org"],
             cwd=gitdir,
         )
-        subprocess.check_call(
-            ["git", "config", "user.name", "Test bot"], cwd=gitdir
-        )
+        subprocess.check_call(["git", "config", "user.name", "Test bot"], cwd=gitdir)
         branchfile = os.path.join(gitdir, "branchname")
         with open(branchfile, "w", encoding="utf-8") as _file:
             _file.write(branch)
@@ -81,8 +83,6 @@ def test_build_binder(binder_url):
     ):
         build_url = binder_url + f"/build/gh/{repo}/{branch}"
 
-        log = []
-
         begin_of_request = datetime.datetime.now()
         token = None
 
@@ -99,7 +99,7 @@ def test_build_binder(binder_url):
             if line.startswith("data:"):
                 data = json.loads(line.split(":", 1)[1])
 
-                log.append(data.get("message"))
+                logging.info("| %s | %s", data.get('phase'), data.get('message').strip())
 
                 if data.get("phase") == "ready":
                     notebook_url = data["url"]
@@ -107,7 +107,6 @@ def test_build_binder(binder_url):
                     break
         else:
             # This means we never got a 'Ready'!
-            print("".join(log))
             assert False
 
         assert token is not None

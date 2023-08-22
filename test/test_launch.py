@@ -4,7 +4,6 @@ Test Binder installation capability to launch repository
 
 import json
 import datetime
-
 import logging
 
 import pytest  # pylint: disable=unused-import
@@ -13,7 +12,7 @@ import requests
 REQUESTS_TIMEOUT = 30  # seconds
 USER_TIMEOUT = 300  # seconds or 5min
 
-LOGGER = logging.getLogger(__name__)
+logging.basicConfig(encoding="utf-8", level=logging.DEBUG)
 
 
 def test_launch_binder(binder_url):
@@ -23,8 +22,6 @@ def test_launch_binder(binder_url):
     repo = "binder-examples/requirements"
     ref = "50533eb470ee6c24e872043d30b2fee463d6943f"
     build_url = f"{binder_url}/build/gh/{repo}/{ref}"
-
-    log = []
 
     begin_of_request = datetime.datetime.now()
 
@@ -41,7 +38,7 @@ def test_launch_binder(binder_url):
         if line.startswith("data:"):
             data = json.loads(line.split(":", 1)[1])
 
-            log.append(data.get("message"))
+            logging.info("| %s | %s", data.get('phase'), data.get('message').strip())
 
             if data.get("phase") == "ready":
                 notebook_url = data["url"]
@@ -49,8 +46,9 @@ def test_launch_binder(binder_url):
                 break
     else:
         # This means we never got a 'Ready'!
-        print("".join(log))
         assert False
+
+    assert token is not None
 
     headers = {"Authorization": f"token {token}"}
     response = requests.get(

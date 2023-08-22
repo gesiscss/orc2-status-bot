@@ -1,6 +1,4 @@
 """Basic HTTP tests to make sure things are running"""
-import pprint
-
 import requests
 
 REQUESTS_TIMEOUT = 30  # seconds
