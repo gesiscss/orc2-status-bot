@@ -56,7 +56,13 @@ Test https://notebooks.gesis.org:
     name: docker-private-snapshots.gesis.intra/gesis/ilcm/orc2-status-bot:latest
   dependencies: []
   script:
-    - pytest --capture=no --binder-url $BINDER_HUB_URL --hub-url $JUPYTER_HUB_URL test
+    - |
+      pytest \
+      --binder-url $BINDER_HUB_URL \
+      --hub-url $JUPYTER_HUB_URL \
+      --log-level=INFO \
+      --log-cli-level=INFO \
+      test
   artifacts:
     paths:
       - build.log
