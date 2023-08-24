@@ -99,14 +99,19 @@ def test_build_binder(binder_url):
             if line.startswith("data:"):
                 data = json.loads(line.split(":", 1)[1])
 
-                logging.info(
-                    "| %s | %s", data.get("phase"), data.get("message").strip()
-                )
+                if data.get("message") is not None:
+                    logging.info(
+                        "| %s | %s", data.get("phase"), data.get("message").strip()
+                    )
+                else:
+                    logging.info("%s", line)
 
                 if data.get("phase") == "ready":
                     notebook_url = data["url"]
                     token = data["token"]
                     break
+            else:
+                logging.info("%s", line)
         else:
             # This means we never got a 'Ready'!
             assert False
