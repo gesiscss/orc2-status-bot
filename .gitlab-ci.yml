@@ -56,6 +56,7 @@ Test https://notebooks.gesis.org:
     name: docker-private-snapshots.gesis.intra/gesis/ilcm/orc2-status-bot:latest
   dependencies: []
   script:
+    - openssl s_client -connect notebooks.gesis.org:443
     - |
       pytest \
       --binder-url $BINDER_HUB_URL \
