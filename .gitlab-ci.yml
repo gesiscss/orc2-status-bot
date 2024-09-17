@@ -57,6 +57,8 @@ Test https://notebooks.gesis.org:
   dependencies: []
   script:
     - openssl s_client -connect notebooks.gesis.org:443
+    - curl -s https://notebooks.gesis.org/binder/versions | python3 -m json.tool
+    - curl -s https://notebooks.gesis.org/binder/health | python3 -m json.tool
     - |
       pytest \
       --binder-url $BINDER_HUB_URL \
